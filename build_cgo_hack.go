@@ -1,4 +1,5 @@
 // +build required
+
 package fitz
 
 // this file exists purely to prevent the golang toolchain from stripping

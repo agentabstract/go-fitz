@@ -108,12 +108,14 @@ func NewFromMemory(b []byte) (f *Document, err error) {
 	C.fz_register_document_handlers(f.ctx)
 
 	data := (*C.uchar)(C.CBytes(b))
+	defer C.free(unsafe.Pointer(data))
 
 	stream := C.fz_open_memory(f.ctx, data, C.size_t(len(b)))
 	if stream == nil {
 		err = ErrOpenMemory
 		return
 	}
+
 
 	magic := contentType(b)
 	if magic == "" {
@@ -134,7 +136,6 @@ func NewFromMemory(b []byte) (f *Document, err error) {
 	if v {
 		err = ErrNeedsPassword
 	}
-
 	return
 }
 

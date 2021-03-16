@@ -83,6 +83,7 @@ func New(filename string) (f *Document, err error) {
 	f.doc = C.fz_open_document(f.ctx, cfilename)
 	if f.doc == nil {
 		err = ErrOpenDocument
+		return
 	}
 
 	ret := C.fz_needs_password(f.ctx, f.doc)
@@ -114,7 +115,13 @@ func NewFromMemory(b []byte) (f *Document, err error) {
 		return
 	}
 
-	cmagic := C.CString(contentType(b))
+	magic := contentType(b)
+	if magic == "" {
+		err = ErrOpenMemory
+		return
+	}
+
+	cmagic := C.CString(magic)
 	defer C.free(unsafe.Pointer(cmagic))
 
 	f.doc = C.fz_open_document_with_stream(f.ctx, cmagic, stream)
